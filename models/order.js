@@ -22,9 +22,25 @@ const OrderSchema = new Schema(
       type: Currency,
       required: true
     },
-    items: []
+    status: {
+      type: String,
+      enum: ["NEW", "PREPARING", "FINALIZED", "CANCELLED"],
+      required: true
+    },
+    transaction: {
+      type: String,
+      default: "PLACEHOLDER"
+    },
+    items: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FoodItem"
+      }
+    ]
   },
   {
     timestamps: true
   }
 );
+
+module.exports = mongoose.model("Order", OrderSchema);
