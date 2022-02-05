@@ -33,5 +33,7 @@ const foodItemSchema = new Schema({
   description: {
     type: String
   },
-  items: [ingredientSchema]
+  items: [{ type: mongoose.Schema.Types.ObjectId, ref: "Ingredient" }]
 });
+
+module.exports = mongoose.model("FoodItem", foodItemSchema);
