@@ -8,6 +8,9 @@ const config = require("./config");
 
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
+var orderRouter = require("./routes/orderRouter");
+var foodItemRouter = require("./routes/foodItemRouter");
+var ingredientRouter = require("./routes/ingredientRouter");
 
 var app = express();
 
@@ -35,10 +38,12 @@ app.use(passport.initialize());
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/", indexRouter);
-app.use("/users", usersRouter);
 
 //API endpoints
-/* Add api endpoints here */
+app.use("/users", usersRouter);
+app.use("/orders", orderRouter);
+app.use("/fooditems", foodItemRouter);
+app.use("/ingredients", ingredientRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
