@@ -12,6 +12,10 @@ const ingredientCategorySchema = new Schema({
   text: {
     type: String,
     required: true
+  }, 
+  index: {
+      type: Number,
+      required: true
   }
 });
 
@@ -41,9 +45,12 @@ const ingredientSchema = new Schema(
     },
     description: {
       type: String
-    }
-  },
-  { timestamps: true }
+    },
+    available: {
+        type: Boolean,
+        default: true
+      },
+  }
 );
 
 module.exports = mongoose.model("Ingredient", ingredientSchema);
