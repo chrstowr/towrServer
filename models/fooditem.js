@@ -3,16 +3,25 @@ require("mongoose-currency").loadType(mongoose);
 const Schema = mongoose.Schema;
 const Currency = mongoose.Types.Currency;
 
+const foodTypeSchema = new Schema({
+  name: {
+    type: String,
+    uppercase: true
+  }
+});
+
+const foodBrandSchema = new Schema({
+  name: {
+    type: String
+  }
+});
+
 const foodItemSchema = new Schema({
   name: {
     type: String,
     required: true
   },
-  type: {
-    type: String,
-    enum: ["MENU", "CUSTOM", "SIDE", "DRINK"],
-    required: true
-  },
+  type: foodTypeSchema,
   available: {
     type: Boolean,
     default: true
@@ -27,13 +36,22 @@ const foodItemSchema = new Schema({
     min: 0,
     required: true
   },
+  brand: foodBrandSchema,
   image: {
     type: String
   },
   description: {
     type: String
   },
-  items: [{ type: mongoose.Schema.Types.ObjectId, ref: "Ingredient" }]
+  ingredients: [{ type: mongoose.Schema.Types.ObjectId, ref: "Ingredient" }]
 });
 
-module.exports = mongoose.model("FoodItem", foodItemSchema);
+const foodType = mongoose.model("FoodType", foodTypeSchema);
+const foodBrand = mongoose.model("FoodBrand", foodBrandSchema);
+const foodItem = mongoose.model("FoodItem", foodItemSchema);
+
+module.exports = {
+  FoodType: foodType,
+  FoodBrand: foodBrand,
+  FoodItem: foodItem
+}
