@@ -1,14 +1,180 @@
 const express = require("express");
-const { FoodItem } = require("../models/foodItem");
+const { FoodItem, FoodBrand, FoodType } = require("../models/foodItem");
 const authenticate = require("../authenticate");
 
 const FoodItemRouter = express.Router();
+
+FoodItemRouter.route("/brands")
+  .get((req, res, next) => {
+    FoodBrand.find()
+      .then(foodbrands => {
+        res.statusCode = 200;
+        res.setHeader("Content-Type", "application/json");
+        res.json(foodbrands);
+      })
+      .catch(err => next(err));
+  })
+  .post(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+    FoodBrand.create(req.body)
+      .then(foodbrand => {
+        console.log("FoodBrand Created ", FoodBrand);
+        res.statusCode = 200;
+        res.setHeader("Content-Type", "application/json");
+        res.json(foodbrand);
+      })
+      .catch(err => next(err));
+  })
+  .put((req, res) => {
+    res.statusCode = 403;
+    res.end("PUT operation not supported on /brands/");
+  })
+  .delete(
+    authenticate.verifyUser,
+    authenticate.verifyAdmin,
+    (req, res, next) => {
+      FoodBrand.deleteMany()
+        .then(response => {
+          res.statusCode = 200;
+          res.setHeader("Content-Type", "application/json");
+          res.json(response);
+        })
+        .catch(err => next(err));
+    }
+  );
+
+FoodItemRouter.route("/brands/:brandId")
+  .get((req, res, next) => {
+    FoodBrand.findById(req.params.brandId)
+      .then(FoodBrand => {
+        res.statusCode = 200;
+        res.setHeader("Content-Type", "application/json");
+        res.json(FoodBrand);
+      })
+      .catch(err => next(err));
+  })
+  .post((req, res) => {
+    res.statusCode = 403;
+    res.end(
+      `POST operation not supported on fooditems/brands/${req.params.brandId}`
+    );
+  })
+  .put(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+    FoodBrand.findByIdAndUpdate(
+      req.params.brandId,
+      {
+        $set: req.body
+      },
+      { new: true }
+    )
+      .then(foodbrand => {
+        res.statusCode = 200;
+        res.setHeader("Content-Type", "application/json");
+        res.json(foodbrand);
+      })
+      .catch(err => next(err));
+  })
+  .delete(
+    authenticate.verifyUser,
+    authenticate.verifyAdmin,
+    (req, res, next) => {
+      FoodBrand.findByIdAndDelete(req.params.brandId)
+        .then(response => {
+          res.statusCode = 200;
+          res.setHeader("Content-Type", "application/json");
+          res.json(response);
+        })
+        .catch(err => next(err));
+    }
+  );
+
+FoodItemRouter.route("/types")
+  .get((req, res, next) => {
+    FoodType.find()
+      .then(FoodTypes => {
+        res.statusCode = 200;
+        res.setHeader("Content-Type", "application/json");
+        res.json(FoodTypes);
+      })
+      .catch(err => next(err));
+  })
+  .post(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+    FoodType.create(req.body)
+      .then(foodtype => {
+        console.log("foodtype Created ", FoodType);
+        res.statusCode = 200;
+        res.setHeader("Content-Type", "application/json");
+        res.json(foodtype);
+      })
+      .catch(err => next(err));
+  })
+  .put(authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
+    res.statusCode = 403;
+    res.end("PUT operation not supported on /fooditems/brands");
+  })
+  .delete(
+    authenticate.verifyUser,
+    authenticate.verifyAdmin,
+    (req, res, next) => {
+      FoodType.deleteMany()
+        .then(response => {
+          res.statusCode = 200;
+          res.setHeader("Content-Type", "application/json");
+          res.json(response);
+        })
+        .catch(err => next(err));
+    }
+  );
+
+FoodItemRouter.route("/types/:typeId")
+  .get((req, res, next) => {
+    FoodType.findById(req.params.typeId)
+      .then(foodtype => {
+        res.statusCode = 200;
+        res.setHeader("Content-Type", "application/json");
+        res.json(foodtype);
+      })
+      .catch(err => next(err));
+  })
+  .post(authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
+    res.statusCode = 403;
+    res.end(
+      `POST operation not supported on /fooditems/types/${req.params.typeId}`
+    );
+  })
+  .put(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+    FoodType.findByIdAndUpdate(
+      req.params.typeId,
+      {
+        $set: req.body
+      },
+      { new: true }
+    )
+      .then(foodtype => {
+        res.statusCode = 200;
+        res.setHeader("Content-Type", "application/json");
+        res.json(foodtype);
+      })
+      .catch(err => next(err));
+  })
+  .delete(
+    authenticate.verifyUser,
+    authenticate.verifyAdmin,
+    (req, res, next) => {
+      FoodType.findByIdAndDelete(req.params.typeId)
+        .then(response => {
+          res.statusCode = 200;
+          res.setHeader("Content-Type", "application/json");
+          res.json(response);
+        })
+        .catch(err => next(err));
+    }
+  );
 
 FoodItemRouter.route("/")
   .get((req, res, next) => {
     FoodItem.find()
       .populate("ingredients")
-      .populate("type")
+      .populate("types")
       .populate("brand")
       .then(FoodItems => {
         res.statusCode = 200;
@@ -27,7 +193,7 @@ FoodItemRouter.route("/")
       })
       .catch(err => next(err));
   })
-  .put(authenticate.verifyUser, (req, res) => {
+  .put(authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
     res.statusCode = 403;
     res.end("PUT operation not supported on /FoodItems");
   })
@@ -46,15 +212,15 @@ FoodItemRouter.route("/")
   );
 
 FoodItemRouter.route("/:foodItemId")
-  .get(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+  .get((req, res, next) => {
     FoodItem.findById(req.params.foodItemId)
       .populate("ingredients")
       .populate("type")
       .populate("brand")
-      .then(FoodItem => {
+      .then(fooditem => {
         res.statusCode = 200;
         res.setHeader("Content-Type", "application/json");
-        res.json(FoodItem);
+        res.json(fooditem);
       })
       .catch(err => next(err));
   })
@@ -114,7 +280,7 @@ FoodItemRouter.route("/:foodItemId/ingredients")
       })
       .catch(err => next(err));
   })
-  .post(authenticate.verifyUser, (req, res, next) => {
+  .post(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     FoodItem.findById(req.params.foodItemId)
       .then(FoodItem => {
         if (FoodItem) {
@@ -134,7 +300,7 @@ FoodItemRouter.route("/:foodItemId/ingredients")
       })
       .catch(err => next(err));
   })
-  .put(authenticate.verifyUser, (req, res) => {
+  .put(authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
     res.statusCode = 403;
     res.end(
       `PUT operation not supported on /foodItems/${req.params
@@ -169,8 +335,7 @@ FoodItemRouter.route("/:foodItemId/ingredients")
     }
   );
 
-foodItemRouter
-  .route("/:foodItemId/ingredients/:ingredientId")
+FoodItemRouter.route("/:foodItemId/ingredients/:ingredientId")
   .get((req, res, next) => {
     FoodItem.findById(req.params.foodItemId)
       .populate("ingredients")
@@ -184,51 +349,55 @@ foodItemRouter
           err.status = 404;
           return next(err);
         } else {
-          err = new Error(`Comment ${req.params.ingredientId} not found`);
+          err = new Error(`FoodItem ${req.params.ingredientId} not found`);
           err.status = 404;
           return next(err);
         }
       })
       .catch(err => next(err));
   })
-  .post(authenticate.verifyUser, (req, res) => {
+  .post(authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
     res.statusCode = 403;
     res.end(
       `POST operation not supported on /foodItems/${req.params
         .foodItemId}/ingredients/${req.params.ingredientId}`
     );
   })
-  .put(authenticate.verifyUser, (req, res, next) => {
+  .put(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     res.statusCode = 403;
     res.end(
       `PUT operation not supported on /foodItems/${req.params
         .foodItemId}/ingredients/${req.params.ingredientId}`
     );
   })
-  .delete(authenticate.verifyUser, (req, res, next) => {
-    FoodItem.findById(req.params.foodItemId)
-      .then(foodItem => {
-        if (foodItem && foodItem.ingredients.id(req.params.ingredientId)) {
-          foodItem.ingredients.id(req.params.ingredientId).remove();
-          foodItem
-            .save()
-            .then(foodItem => {
-              res.statusCode = 200;
-              res.setHeader("Content-Type", "application/json");
-              res.json(foodItem);
-            })
-            .catch(err => next(err));
-        } else if (!foodItem) {
-          err = new Error(`FoodItem ${req.params.foodItemId} not found`);
-          err.status = 404;
-          return next(err);
-        } else {
-          err = new Error(`Comment ${req.params.ingredientId} not found`);
-          err.status = 404;
-          return next(err);
-        }
-      })
-      .catch(err => next(err));
-  });
+  .delete(
+    authenticate.verifyUser,
+    authenticate.verifyAdmin,
+    (req, res, next) => {
+      FoodItem.findById(req.params.foodItemId)
+        .then(foodItem => {
+          if (foodItem && foodItem.ingredients.id(req.params.ingredientId)) {
+            foodItem.ingredients.id(req.params.ingredientId).remove();
+            foodItem
+              .save()
+              .then(foodItem => {
+                res.statusCode = 200;
+                res.setHeader("Content-Type", "application/json");
+                res.json(foodItem);
+              })
+              .catch(err => next(err));
+          } else if (!foodItem) {
+            err = new Error(`FoodItem ${req.params.foodItemId} not found`);
+            err.status = 404;
+            return next(err);
+          } else {
+            err = new Error(`Comment ${req.params.ingredientId} not found`);
+            err.status = 404;
+            return next(err);
+          }
+        })
+        .catch(err => next(err));
+    }
+  );
 
 module.exports = FoodItemRouter;
