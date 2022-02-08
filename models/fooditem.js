@@ -7,12 +7,21 @@ const foodTypeSchema = new Schema({
   name: {
     type: String,
     uppercase: true
+  },
+  sku: {
+    type: Number,
+    unique: true
   }
 });
 
 const foodBrandSchema = new Schema({
   name: {
-    type: String
+    type: String,
+    required: true
+  },
+  sku: {
+    type: Number,
+    unique: true
   }
 });
 
@@ -43,7 +52,11 @@ const foodItemSchema = new Schema({
   description: {
     type: String
   },
-  ingredients: [{ type: mongoose.Schema.Types.ObjectId, ref: "Ingredient" }]
+  sku: {
+    type: Number,
+    unique: true
+  },
+  ingredients: [{ type: Schema.Types.ObjectId, ref: "Ingredient" }]
 });
 
 const foodType = mongoose.model("FoodType", foodTypeSchema);
@@ -54,4 +67,4 @@ module.exports = {
   FoodType: foodType,
   FoodBrand: foodBrand,
   FoodItem: foodItem
-}
+};
