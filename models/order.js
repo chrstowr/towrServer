@@ -27,6 +27,10 @@ const OrderSchema = new Schema(
       enum: ["NEW", "PREPARING", "FINALIZED", "CANCELLED"],
       required: true
     },
+    stopLocation: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "StopLocation"
+    },
     transaction: {
       type: String,
       default: "PLACEHOLDER"
