@@ -11,18 +11,22 @@ const usersRouter = require("./routes/users");
 const orderRouter = require("./routes/orderRouter");
 const foodItemRouter = require("./routes/foodItemRouter");
 const ingredientRouter = require("./routes/ingredientRouter");
-const uploadRouter = require('./routes/uploadRouter');
-
+const uploadRouter = require("./routes/uploadRouter");
 
 var app = express();
 
 // Secure traffic only
-app.all('*', (req, res, next) => {
+app.all("*", (req, res, next) => {
   if (req.secure) {
     return next();
   } else {
-      console.log(`Redirecting to: https://${req.hostname}:${app.get('secPort')}${req.url}`);
-      res.redirect(301, `https://${req.hostname}:${app.get('secPort')}${req.url}`);
+    console.log(
+      `Redirecting to: https://${req.hostname}:${app.get("secPort")}${req.url}`
+    );
+    res.redirect(
+      301,
+      `https://${req.hostname}:${app.get("secPort")}${req.url}`
+    );
   }
 });
 
@@ -51,13 +55,13 @@ app.use(passport.initialize());
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/", indexRouter);
 
+
 //API endpoints
 app.use("/users", usersRouter);
 app.use("/orders", orderRouter);
 app.use("/fooditems", foodItemRouter);
 app.use("/ingredients", ingredientRouter);
-app.use('/imageUpload', uploadRouter);
-
+app.use("/imageUpload", uploadRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
