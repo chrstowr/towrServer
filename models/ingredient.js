@@ -16,6 +16,9 @@ const ingredientCategorySchema = new Schema({
   index: {
       type: Number,
       required: true
+  },
+  image: {
+    type: String
   }
 });
 
@@ -39,9 +42,6 @@ const ingredientSchema = new Schema(
       type: Currency,
       min: 0,
       required: true
-    },
-    image: {
-      type: String
     },
     description: {
       type: String
