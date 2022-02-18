@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken"); // used to create, sign, and verify tokens
 const LocalStrategy = require("passport-local").Strategy;
 const JwtStrategy = require("passport-jwt").Strategy;
 const ExtractJwt = require("passport-jwt").ExtractJwt;
+const GoogleStrategy = require("passport-google-oauth20");
 
 const config = require("./config.js");
 
@@ -33,6 +34,49 @@ exports.jwtPassport = passport.use(
     });
   })
 );
+
+exports.googlePassport = passport.use(
+  new GoogleStrategy(
+    {
+      clientID: config.google.clientId,
+      clientSecret: config.google.clientSecret,
+      callbackURL: "/users/oauth2/redirect/google",
+      scope: ['profile','email'],
+      state: false
+    },
+    (accessToken, refreshToken, profile, done) => {
+      User.findOne({ googleId: profile.id }, (err, user) => {
+        if (err) {
+          return done(err, false);
+        }
+        if (!err && user) {
+          return done(null, user);
+        } else {
+          console.log(profile);
+          user = new User({ username: profile.emails[0].value });
+          user.googleId = profile.id;
+          user.firstname = profile.name.givenName;
+          user.lastname = profile.name.familyName;
+          user.save((err, user) => {
+            if (err) {
+              return done(err, false);
+            } else {
+              return done(null, user);
+            }
+          });
+        }
+      });
+    }
+  )
+);
+
+passport.serializeUser(function(user, done) {
+  done(null, user);
+});
+
+passport.deserializeUser(function(user, done) {
+  done(null, user);
+});
 
 exports.verifyUser = passport.authenticate("jwt", { session: false });
 
