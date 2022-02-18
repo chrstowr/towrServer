@@ -4,6 +4,7 @@ const passportLocalMongoose = require('passport-local-mongoose');
 
 
 const userSchema = new Schema({
+    googleId: String,
     firstname: {
         type: String,
         default: ''
@@ -19,5 +20,4 @@ const userSchema = new Schema({
 });
 
 userSchema.plugin(passportLocalMongoose);
-
 module.exports = mongoose.model('User', userSchema);
